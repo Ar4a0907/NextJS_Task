@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import {AppProps} from 'next/app'
 import Head from "next/head";
 import React from "react";
-
+import '../styles/mainPage.css';
 // @ts-ignore
 export default function App({Component, pageProps}: AppProps) {
     return (

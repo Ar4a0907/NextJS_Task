@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import Head from 'next/head'
 import styles from '../styles/Home.module.css';
 import { InferGetStaticPropsType } from 'next';
 import namesdb from '../names.json';
-import SideBlock from "../components/SideBlock/SideBlock";
-import Block from "../components/Block/Block";
+// @ts-ignore
+import SideBlock from '../components/sideBlock/SideBlock';
+// @ts-ignore
+import Block from '../components/block/Block';
 
 type Product = {
     G: number
@@ -20,7 +21,6 @@ function sleep(ms) {
 export const getStaticProps = async () => {
     const res = await fetch('http://localhost:4200/Goods')
     const Products: Product[] = await res.json()
-
     return {
         props: { Products }
     }
@@ -34,10 +34,27 @@ export default function Home({ Products }: InferGetStaticPropsType<typeof getSta
 
     const [cart, setCart] = useState([])
 
-    const handleClick = (childData) => {
-        console.log(childData)
-        setCart([...cart, childData])
+    function containsObject(obj, list) {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].Name === obj.Name) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    const handleClick = (childData) => {
+        if(!containsObject(childData,cart)) {
+            childData.costInRub = (dollarRate * childData.Cost).toFixed(2)
+            setCart([...cart, childData])
+        }
+    }
+
+    const handleChange = (childData) => {
+            setCart([])
+            setCart(childData)
+    }
+
 
     const fetchedObjects = (products, names) => {
         products.map((product) => (
@@ -46,18 +63,19 @@ export default function Home({ Products }: InferGetStaticPropsType<typeof getSta
                     "Group": names[product.G].G,
                     "Name": names[product.G].B[product.T].N,
                     "Cost": product.C,
-                    "Count": product.P
+                    "Count": product.P,
+                    "BuyingCount": 1
                }
             )
         ))
     }
 
-    const [dollarRate, setRate] = useState(null)
+    const [dollarRate, setRate] = useState(50)
     const [prevRate, setPrev] = useState(null)
     const [increaseCost, setIncrease] = useState(null)
 
     useEffect(() => {
-        setInterval(() => setRate(Math.floor(Math.random() * 31) + 50), 5000);
+        setInterval(() => setRate(Math.floor(Math.random() * 31) + 50), 20000);
     }, []);
 
     useEffect(() => {
@@ -69,14 +87,14 @@ export default function Home({ Products }: InferGetStaticPropsType<typeof getSta
             }
         }
         setPrev(dollarRate)
-    }, [dollarRate])
+    }, [dollarRate, cart])
 
   return (
     <div className={styles.container}>
         <main>
-            <div>курс: {dollarRate}</div>
-            <SideBlock Datas={cart} Exchange={dollarRate}/>
+            <SideBlock Datas={cart} Callback={handleChange}/>
             {fetchedObjects(Products, namesdb)}
+            <div className='block'>курс: {dollarRate}</div>
             <Block parnetCallback={handleClick} Objects={fetchedObj} group={fetchedObj[0].Group} Increase={increaseCost}/>
             <Block parnetCallback={handleClick} Objects={fetchedObj} group={fetchedObj[3].Group} Increase={increaseCost}/>
             <Block parnetCallback={handleClick} Objects={fetchedObj} group={fetchedObj[6].Group} Increase={increaseCost}/>

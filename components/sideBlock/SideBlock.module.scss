@@ -55,6 +55,26 @@
   .cartUnitPrice {
     color: #969696;
   }
+
+  .cartUnitCount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    span {
+      color: #969696;
+      cursor: pointer;
+      padding-left: 10px;
+      &:hover {
+        color: #cdcdcd;
+      }
+    }
+  }
+
+  .total {
+    margin-left: 10px;
+    margin-bottom: 24px;
+    padding-top: 12px;
+  }
 }
 
 .opened {
